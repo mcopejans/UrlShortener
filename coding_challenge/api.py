@@ -1,11 +1,13 @@
 
 import flask
+import flask_cors
 import logging
 
 from coding_challenge.url_shortener import url_shortener, url_validator
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = False
+flask_cors.CORS(app)
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.DEBUG, format='%(message)s')
@@ -46,7 +48,10 @@ def enlarge_url():
 
     short_url = request_args['short_url']
     logger.info("Url to enlarge: %s", short_url)
-    valid = url_validator.UrlValidator.validate(short_url)
+    try:
+        valid = url_validator.UrlValidator.validate(short_url)
+    except AttributeError as ex:
+        return "Invalid URL given", 404
     if valid:
         unique_id = short_url.split('/')[-1]
         try:
@@ -61,7 +66,7 @@ def enlarge_url():
 
 @app.route('/')
 def main():
-    return 'Hello, this is my URL shortener.'
+    return 'This is the URL shortener backend based on Python Flask.'
 
 
-app.run(host='0.0.0.0', port=80)
+app.run(host='0.0.0.0', port=3001)
